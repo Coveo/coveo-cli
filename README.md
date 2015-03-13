@@ -45,12 +45,22 @@ go test -cover .
 ## Usage
 **Simple query**
 
+```bash
+
     $ coveo-cli -n 2 -q layout
 
-    Results: 2, Skipped: 0, Total: 804, Duration: 96ms
+    Result: [0-1]/804, Duration: 103ms
 
-    Re: force layout question	|	Gmail - coveodocumentationsamples@gmail.com
-    Re: force layout question	|	Gmail - coveodocumentationsamples@gmail.com
+
+    Re: force layout question
+    imap://imap.gmail.com:993/account:coveodocumentationsamples@gmail.com/mailbox:[Gmail]/mailbox:All Mail/mail:19386
+    	systitle: Re: force layout question
+    	syssource: Gmail - coveodocumentationsamples@gmail.com
+    Re: force layout question
+    imap://imap.gmail.com:993/account:coveodocumentationsamples@gmail.com/mailbox:[Gmail]/mailbox:All Mail/mail:19397
+    	systitle: Re: force layout question
+    	syssource: Gmail - coveodocumentationsamples@gmail.com
+```
 
 **Less simple - simple query**
 
@@ -58,35 +68,43 @@ go test -cover .
 $ coveo-cli -n 5 -q "layout @syssource=salesforce"
 
 # oups no results
- Results: 5, Skipped: 0, Total: 0, Duration: 102ms
+Result: [0-4]/0, Duration: 84ms
 ```
 
 **Specifying fields to get**
 
 ```bash
-$ coveo-cli -n 2 -q "@sysconcepts" -f systitle,objecttype,sysconcepts
+$ coveo-cli -n 2 -q "@sysconcepts" -f objecttype,sysconcepts
 
-Results: 2, Skipped: 0, Total: 26396, Duration: 109ms
-Re: Apache OpenOffice.org Calc	|	Message	|	openoffice ; org ; helper column ; search criteria ; confusing think ; bug reporting ; choice of filters ; apache ; Formatting ; programmer ; submission
-Re: [dc.js users] Simple line chart not drawing data points	|	Message	|	list of colors ; emails ; unsubscribe ; unmunged data ; googlegroups ; dc-js-user-group ; empty ; graph ; ordinalColors
+Result: [0-1]/26413, Duration: 99ms
+
+
+use of -blibpath not consistent (on AIX, maybe for all platforms)
+imap://imap.gmail.com:993/account:coveodocumentationsamples@gmail.com/mailbox:[Gmail]/mailbox:All Mail/mail:19426
+	objecttype: Message
+	sysconcepts: lib ; usr ; multiplicity ; side-by-side ; packaging ; libressl ; archive member ; NIX whith ; libcrypto
+Re: spell check
+imap://imap.gmail.com:993/account:coveodocumentationsamples@gmail.com/mailbox:[Gmail]/mailbox:All Mail/mail:19423
+	objecttype: Message
+	sysconcepts: spell check ; User Profile ; suspect
 ```
 
 **Getting facets**
 
 ```bash
 $ coveo-cli -n 5 -q "layout" -g objecttype,sysconcepts
+Result: [0-4]/804, Duration: 108ms
 
-Results: 5, Skipped: 0, Total: 804, Duration: 101ms
 objecttype:
-           Thread : 0
-           Message : 0
-           File : 0
+           Thread : 1
+           Message : 778
+           File : 24
 sysconcepts:
-            d3 : 0
-            googlegroups : 0
-            unsubscribe : 0
-            emails : 0
-            stop receiving : 0
+            d3 : 539
+            googlegroups : 539
+            unsubscribe : 509
+            emails : 377
+            stop receiving : 225
 ```
 
 **For help**
