@@ -32,6 +32,7 @@ Re: [dc.js users] Simple line chart not drawing data points	|	Message	|	list of 
 
 ```bash
 $ coveo-cli -n 5 -q "layout" -g objecttype,sysconcepts
+
 Results: 5, Skipped: 0, Total: 804, Duration: 101ms
 objecttype:
            Thread : 0
