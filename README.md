@@ -1,4 +1,4 @@
-![Logo](doc/coveo-cli_with-txt.svg)
+![Logo](doc/coveo-cli.png)
 
 #coveo-cli
 
