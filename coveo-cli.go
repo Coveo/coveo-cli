@@ -67,12 +67,50 @@ func main() {
 		return
 	}
 
+	q := buildQuery()
+	req, err := buildRequest(q)
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	resp, err := http.DefaultClient.Do(req)
+	if err != nil {
+		log.Fatal(err)
+	}
+	defer resp.Body.Close()
+
+	queryResponse := &QueryResponse{}
+	if config.printJSON {
+		d, _ := ioutil.ReadAll(resp.Body)
+		fmt.Printf("%s\n", d)
+		return
+	}
+
+	err = json.NewDecoder(resp.Body).Decode(queryResponse)
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	if config.showQueryStatus {
+		queryStatusString := queryStatusStringFormatter(queryResponse)
+		fmt.Println(queryStatusString)
+	}
+
+	// Prepare result printing
+	groupByString := groupByStringFormatter(queryResponse)
+	fmt.Println(groupByString)
+
+	resultString := resultStringFormatter(queryResponse)
+	fmt.Println(resultString)
+}
+
+func buildQuery() *Query {
 	q := &Query{}
 	q.Q = config.q
 	q.FirstResult = config.skip
 	q.NumberOfResults = config.numberOfResults
 
-	// If you get facets you wont get results
+	// If you get facets you wont get normal results
 	if len(config.groups) > 0 {
 		q.NumberOfResults = 0
 
@@ -85,10 +123,12 @@ func main() {
 			})
 		}
 	}
-
+	return q
+}
+func buildRequest(q *Query) (*http.Request, error) {
 	marshalledQuery, err := json.Marshal(q)
 	if err != nil {
-		log.Fatal(err)
+		return nil, err
 	}
 
 	buf := bytes.NewReader(marshalledQuery)
@@ -101,66 +141,49 @@ func main() {
 	if len(config.username) != 0 {
 		req.SetBasicAuth(config.username, config.password)
 	}
+	return req, nil
+}
 
-	resp, err := http.DefaultClient.Do(req)
-	if err != nil {
-		log.Fatal(err)
+func queryStatusStringFormatter(qr *QueryResponse) string {
+	n := config.numberOfResults
+	if qr.TotalCount < n {
+		n = qr.TotalCount
 	}
-	defer resp.Body.Close()
+	return fmt.Sprintf("Result: [%d-%d]/%d, Duration: %dms\n", config.skip, config.skip+config.numberOfResults-1, qr.TotalCount, qr.Duration)
+}
 
-	queryResponse := &QueryResponse{}
-	if config.printJSON {
-		d, _ := ioutil.ReadAll(resp.Body)
-		fmt.Printf("%s", d)
-	}
-	err = json.NewDecoder(resp.Body).Decode(queryResponse)
-	if err != nil {
-		log.Fatal(err)
-	}
-	if config.printJSON {
-		b, err := json.MarshalIndent(queryResponse, "", " ")
-		if err != nil {
-			log.Fatal(err)
-		}
-		fmt.Printf("%s\n", b)
-		return
-	}
+func groupByStringFormatter(qr *QueryResponse) string {
+	s := ""
 
-	if config.showQueryStatus {
-		fmt.Printf("Results: %d, Skipped: %d, Total: %d, Duration: %dms\n", config.numberOfResults, config.skip, queryResponse.TotalCount, queryResponse.Duration)
-	}
-	fields := strings.Split(config.fields, ",")
-
-	// Prepare result printing
-
-	for _, groupByResult := range queryResponse.GroupByResults {
-		// The group
-
+	for _, groupByResult := range qr.GroupByResults {
 		flen := len(groupByResult.Field)
 
-		fmt.Printf("%s:\n", groupByResult.Field)
-
+		s = fmt.Sprintf("%s%s:\n", s, groupByResult.Field)
 		for _, value := range groupByResult.Values {
-			s := strings.Repeat(" ", flen)
-			fmt.Printf("%s %s : %d\n", s, value.Value, value.Score)
+			s = fmt.Sprintf("%s%s %s : %d\n", s, strings.Repeat(" ", flen), value.Value, value.NumberOfResults)
 		}
-
-		//		pp.Print(groupByResult)
 	}
 
-	for _, result := range queryResponse.Results {
+	return s
+}
 
-		line := make([]string, 0, 0)
+func resultStringFormatter(qr *QueryResponse) string {
+	s := ""
+
+	fields := strings.Split(config.fields, ",")
+
+	for _, result := range qr.Results {
+
+		s += fmt.Sprintln(result.Title)
+		s += fmt.Sprintln(result.URI)
+
 		for _, field := range fields {
-
 			f := result.Raw[field]
-			if f == nil {
-				f = ""
+			if f != nil {
+				s += fmt.Sprintf("\t%s: %s\n", field, f)
 			}
-
-			line = append(line, f.(string))
 		}
-
-		fmt.Println(strings.Join(line, "\t|\t"))
 	}
+
+	return s
 }

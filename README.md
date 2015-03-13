@@ -39,6 +39,7 @@ GOOS=linux   go build -o dist/linux-amd64/coveo-cli .
 **Tests (if there were any)**
 ```bash
 go test .
+go test -cover .
 ```
 
 ## Usage
