@@ -1,11 +1,9 @@
 package main
 
 type Query struct {
-	Q               string  `json:"q,omitempty"`
-	AQ              *string `json:"aq,omitempty"`
-	CQ              *string `json:"cq,omitempty"`
-	DQ              *string `json:"dq,omitempty"`
-	NumberOfResults int     `json:"numberOfResults"`
+	Q               string `json:"q,omitempty"`
+	NumberOfResults int    `json:"numberOfResults"`
+	FirstResult     int    `json:"firstResult"`
 }
 
 type QueryResponse struct {
