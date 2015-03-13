@@ -18,6 +18,8 @@ type configS struct {
 	showHelp        bool
 	printJSON       bool
 	q               string
+	username        string
+	password        string
 }
 
 var (
@@ -26,21 +28,27 @@ var (
 
 func init() {
 	flag.StringVar(&config.endpoint, "e", "https://cloudplatform.coveo.com/rest/search/", "access endpoint")
-	flag.StringVar(&config.token, "t", "52d806a2-0f64-4390-a3f2-e0f41a4a73ec", "access token")
 	flag.StringVar(&config.fields, "f", "systitle,syssource", "fields to show")
 	flag.IntVar(&config.numberOfResults, "n", 10, "numbers of results to return")
 	flag.BoolVar(&config.showQueryStatus, "s", true, "show query count & duration")
+	// TODO: printJSON not enabled
 	flag.BoolVar(&config.printJSON, "j", false, "print original json format")
 	flag.BoolVar(&config.showHelp, "help", false, "show query count & duration")
 	flag.BoolVar(&config.showHelp, "h", false, "show query count & duration")
+
 	flag.StringVar(&config.q, "q", "", "Query \"q\" term")
 
-	flag.Parse()
+	// Username & password empty by default, if there is a username we will do a basic auth
+	flag.StringVar(&config.username, "u", "", "Username")
+	flag.StringVar(&config.password, "p", "", "Password")
+	flag.StringVar(&config.token, "t", "52d806a2-0f64-4390-a3f2-e0f41a4a73ec", "access token")
 
+	flag.Parse()
 }
 
 func main() {
 
+	// Show help and exit
 	if config.showHelp {
 		fmt.Println("coveo-cli: usage")
 		flag.PrintDefaults()
@@ -61,6 +69,11 @@ func main() {
 	req.Header.Add("Authorization", "Bearer "+config.token)
 	req.Header.Add("Content-Type", "application/json")
 	req.Header.Add("Accepts", "application/json")
+
+	// If we have a username & a password do a basic auth
+	if len(config.username) != 0 {
+		req.SetBasicAuth(config.username, config.password)
+	}
 
 	resp, err := http.DefaultClient.Do(req)
 	if err != nil {
