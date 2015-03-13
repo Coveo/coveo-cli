@@ -31,6 +31,7 @@ go vet .
 
 **Build**
 ```bash
+go generate
 GOOS=darwin  go build -o dist/darwin-amd64/coveo-cli .
 GOOS=windows go build -o dist/windows-amd64/coveo-cli.exe .
 GOOS=linux   go build -o dist/linux-amd64/coveo-cli .
