@@ -48,7 +48,7 @@ sysconcepts:
 **For help**
 
 ```bash
-coveo-cli --help
+$ coveo-cli --help
 
 coveo-cli: usage
   -e="https://cloudplatform.coveo.com/rest/search/": access endpoint
