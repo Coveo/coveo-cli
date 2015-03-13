@@ -2,8 +2,25 @@
 
 #coveo-cli
 
-## Compiling and every other nice things
 
+## Get
+
+**Windows**
+```bash
+wget https://github.com/Coveo/coveo-cli/raw/master/dist/windows-amd64/coveo-cli.exe
+```
+
+**Linux**
+```
+wget https://github.com/Coveo/coveo-cli/raw/master/dist/linux-amd64/coveo-cli
+```
+
+**OSX**
+```
+wget https://github.com/Coveo/coveo-cli/raw/master/dist/darwin-amd64/coveo-cli
+```
+
+## Developers
 
 **Respect some standards**
 ```bash
