@@ -11,6 +11,12 @@ import (
 	"strings"
 )
 
+//go:generate bash version.sh
+
+const (
+	VERSION = ""
+)
+
 type configS struct {
 	endpoint string
 	token    string
@@ -62,7 +68,7 @@ func main() {
 
 	// Show help and exit
 	if config.showHelp {
-		fmt.Println("coveo-cli: usage")
+		fmt.Printf("coveo-cli: tag:%s, commit#%s\n\tusage:\n", VERSION_GIT_TAG, VERSION_GIT_SHORT)
 		flag.PrintDefaults()
 		return
 	}
