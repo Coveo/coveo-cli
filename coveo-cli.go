@@ -5,6 +5,7 @@ import (
 	"encoding/json"
 	"flag"
 	"fmt"
+	"io/ioutil"
 	"log"
 	"net/http"
 	"strings"
@@ -21,7 +22,7 @@ type configS struct {
 	printJSON       bool
 
 	fields          string
-	facets          string
+	groups          string
 	q               string
 	numberOfResults int
 	skip            int
@@ -40,7 +41,7 @@ func init() {
 
 	// Debug Params
 	flag.BoolVar(&config.showQueryStatus, "s", true, "show query count & duration")
-	flag.BoolVar(&config.printJSON, "j", false, "print original json format")
+	flag.BoolVar(&config.printJSON, "json", false, "print original json format")
 
 	// Username & password empty by default, if there is a username we will do a basic auth
 	flag.StringVar(&config.username, "u", "", "Username")
@@ -49,7 +50,7 @@ func init() {
 
 	// Query Parameters
 	flag.StringVar(&config.q, "q", "", "Query \"q\" term")
-	flag.StringVar(&config.facets, "facets", "", "Facets to query, if you query facets you cant query normal results")
+	flag.StringVar(&config.groups, "g", "", "Facets to query, if you query facets you cant query normal results")
 	flag.StringVar(&config.fields, "f", "systitle,syssource", "fields to show")
 	flag.IntVar(&config.numberOfResults, "n", 10, "numbers of results to return")
 	flag.IntVar(&config.skip, "skip", 0, "number of results to skip")
@@ -70,6 +71,20 @@ func main() {
 	q.Q = config.q
 	q.FirstResult = config.skip
 	q.NumberOfResults = config.numberOfResults
+
+	// If you get facets you wont get results
+	if len(config.groups) > 0 {
+		q.NumberOfResults = 0
+
+		for _, group := range strings.Split(config.groups, ",") {
+			q.AddGroupByRequest(&GroupByRequest{
+				Field: "@" + group,
+				MaximumNumberOfValues: config.numberOfResults,
+				SortCriteria:          "chiSquare",
+				InjectionDepth:        1000,
+			})
+		}
+	}
 
 	marshalledQuery, err := json.Marshal(q)
 	if err != nil {
@@ -94,6 +109,10 @@ func main() {
 	defer resp.Body.Close()
 
 	queryResponse := &QueryResponse{}
+	if config.printJSON {
+		d, _ := ioutil.ReadAll(resp.Body)
+		fmt.Printf("%s", d)
+	}
 	err = json.NewDecoder(resp.Body).Decode(queryResponse)
 	if err != nil {
 		log.Fatal(err)
@@ -107,9 +126,27 @@ func main() {
 		return
 	}
 
-	fmt.Printf("Results: %d, Skipped: %d,Total: %d, Duration: %dms\n", config.numberOfResults, config.skip, queryResponse.TotalCount, queryResponse.Duration)
-
+	if config.showQueryStatus {
+		fmt.Printf("Results: %d, Skipped: %d, Total: %d, Duration: %dms\n", config.numberOfResults, config.skip, queryResponse.TotalCount, queryResponse.Duration)
+	}
 	fields := strings.Split(config.fields, ",")
+
+	// Prepare result printing
+
+	for _, groupByResult := range queryResponse.GroupByResults {
+		// The group
+
+		flen := len(groupByResult.Field)
+
+		fmt.Printf("%s:\n", groupByResult.Field)
+
+		for _, value := range groupByResult.Values {
+			s := strings.Repeat(" ", flen)
+			fmt.Printf("%s %s : %d\n", s, value.Value, value.Score)
+		}
+
+		//		pp.Print(groupByResult)
+	}
 
 	for _, result := range queryResponse.Results {
 
@@ -125,7 +162,5 @@ func main() {
 		}
 
 		fmt.Println(strings.Join(line, "\t|\t"))
-		//    fmt.Print(result.raw[])
-		//		fmt.Printf("%v", result)
 	}
 }
