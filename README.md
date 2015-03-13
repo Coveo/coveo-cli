@@ -1,3 +1,5 @@
+![Logo](doc/coveo-cli_with-txt.svg)
+
 #coveo-cli
 
 **Simple query**
