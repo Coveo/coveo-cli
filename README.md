@@ -2,6 +2,29 @@
 
 #coveo-cli
 
+## Compiling and every other nice things
+
+
+**Respect some standards**
+```bash
+go fmt .
+go fix .
+go vet .
+```
+
+**Build**
+```bash
+GOOS=darwin  go build -o dist/darwin-amd64/coveo-cli .
+GOOS=windows go build -o dist/windows-amd64/coveo-cli.exe .
+GOOS=linux   go build -o dist/linux-amd64/coveo-cli .
+```
+
+**Tests (if there were any)**
+```bash
+go test .
+```
+
+## Usage
 **Simple query**
 
     $ coveo-cli -n 2 -q layout
