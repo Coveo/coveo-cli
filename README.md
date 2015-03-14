@@ -1,7 +1,6 @@
-![Logo](doc/coveo-cli.png)
-
 #coveo-cli
 
+![Logo](doc/coveo-cli.png)
 
 ## Get
 
