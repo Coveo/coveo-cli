@@ -2,23 +2,21 @@
 
 #coveo-cli
 
-
 ## Get
 
+https://github.com/Coveo/coveo-cli/releases
+
 **Windows**
-```bash
-wget https://github.com/Coveo/coveo-cli/raw/master/dist/windows-amd64/coveo-cli.exe
-```
+
+https://github.com/Coveo/coveo-cli/releases/download/v0.2/coveo-cli-windows-x64.zip
 
 **Linux**
-```
-wget https://github.com/Coveo/coveo-cli/raw/master/dist/linux-amd64/coveo-cli
-```
+
+https://github.com/Coveo/coveo-cli/releases/download/v0.2/coveo-cli-linux-amd64.zip
 
 **OSX**
-```
-wget https://github.com/Coveo/coveo-cli/raw/master/dist/darwin-amd64/coveo-cli
-```
+
+https://github.com/Coveo/coveo-cli/releases/download/v0.2/coveo-cli-darwin-amd64.zip
 
 ## Developers
 
